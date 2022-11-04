@@ -2,6 +2,8 @@ import express from "express";
 import bodyParser from "body-parser";
 import pino from "pino";
 import expressPinoLogger from "express-pino-logger";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 
 // set up Mongo
@@ -24,6 +26,29 @@ const logger = pino({
   },
 });
 app.use(expressPinoLogger({ logger }));
+
+// set up session
+app.use(
+  session({
+    secret: "world's best secret",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false },
+
+    // comment out the following to default to a memory-based store, which,
+    // of course, will not persist across load balanced servers
+    // or survive a restart of the server
+    store: MongoStore.create({
+      mongoUrl: "mongodb://127.0.0.1:27017",
+      ttl: 14 * 24 * 60 * 60, // 14 days
+    }),
+  })
+);
+declare module "express-session" {
+  export interface SessionData {
+    userId?: string;
+  }
+}
 
 // // app routes
 // app.get("/api/possible-ingredients", (req, res) => {
