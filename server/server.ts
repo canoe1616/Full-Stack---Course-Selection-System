@@ -5,6 +5,7 @@ import expressPinoLogger from "express-pino-logger";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
+import data = require("../ui/src/data");
 
 // set up Mongo
 const url = "mongodb://127.0.0.1:27017";
@@ -50,29 +51,25 @@ declare module "express-session" {
   }
 }
 
-// // app routes
-// app.get("/api/possible-ingredients", (req, res) => {
-//   res.status(200).json(possibleIngredients);
-// });
+app.post('/admin/addCourse', function (req, res){
+  //body
+  const  courseId = req.body.courseId
+  const name = req.body.name
+  const instructor = req.body.instructor
+  const startTime = req.body.startTime
+  const endTime = req.body.endTime
+  const status = req.body.status
+  const weekdays = req.body.weekdays
+  const capacity = req.body.number
+  
+  return res.status(200).json(data.addCourseInfo(courseId,name,instructor,startTime,endTime,status,weekdays,capacity))
+})
 
-// app.get("/api/orders", async (req, res) => {
-//   res
-//     .status(200)
-//     .json(await orders.find({ state: { $ne: "draft" } }).toArray());
-// });
 
-// app.get("/api/customer/:customerId", async (req, res) => {
-//   const _id = req.params.customerId;
-//   const customer = await customers.findOne({ _id });
-//   if (customer == null) {
-//     res.status(404).json({ _id });
-//     return;
-//   }
-//   customer.orders = await orders
-//     .find({ customerId: _id, state: { $ne: "draft" } })
-//     .toArray();
-//   res.status(200).json(customer);
-// });
+
+
+
+
 
 // connect to Mongo
 client.connect().then(() => {
