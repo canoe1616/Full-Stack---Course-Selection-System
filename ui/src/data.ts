@@ -19,7 +19,7 @@ export async function addCourseInfo(
   weekdays: string,
   capacity: number
 ): Promise<void> {
-  const response = await fetch("/admin/addCourse", {
+  const response = await fetch("/api/admin/addCourse", {
     headers: {
       "Content-Type": "application/json",
     },
@@ -33,10 +33,11 @@ export async function addCourseInfo(
       weekdays,
       capacity,
     }),
-    method: "POST",
+    method: "POST"
   });
+  //
   if (response.status === 200) {
-    return Promise.resolve(response.json());
+    return Promise.resolve();
   } else {
     return Promise.reject();
   }

@@ -51,25 +51,31 @@ declare module "express-session" {
   }
 }
 
-app.post('/admin/addCourse', function (req, res){
+// Note: the url need to start with /api/....., otherwise error will be thrown(Could not send the url)
+app.post("/api/admin/addCourse", function (req, res) {
   //body
-  const  courseId = req.body.courseId
-  const name = req.body.name
-  const instructor = req.body.instructor
-  const startTime = req.body.startTime
-  const endTime = req.body.endTime
-  const status = req.body.status
-  const weekdays = req.body.weekdays
-  const capacity = req.body.number
-  
-  return res.status(200).json(data.addCourseInfo(courseId,name,instructor,startTime,endTime,status,weekdays,capacity))
-})
+  const courseId = req.body.courseId;
+  const name = req.body.name;
+  const instructor = req.body.instructor;
+  const startTime = req.body.startTime;
+  const endTime = req.body.endTime;
+  const status = req.body.status;
+  const weekdays = req.body.weekdays;
+  const capacity = req.body.number;
 
+  // Test if backend receive the data.
+  console.log(req.body);
 
+  try {
+    // TODO: Implement logic to add to database
 
-
-
-
+    // You just need to return status code. No actual data need to be returned.
+    // On the front-end side, redirect to admin home after a successful course-add.
+    return res.status(200);
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+});
 
 // connect to Mongo
 client.connect().then(() => {

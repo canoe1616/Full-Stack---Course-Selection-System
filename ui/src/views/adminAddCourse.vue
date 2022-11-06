@@ -86,6 +86,8 @@ async function handleClickAddCourse() {
     status.value,
     weekdays.value,
     capacity.value
+  ).then(   
+    // TODO: redirect to admin page's view all courses(admin home page)
   );
 }
 </script>
