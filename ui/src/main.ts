@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "@/App.vue";
+import adminAddCourse from "./views/adminAddCourse.vue";
 
 import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 
@@ -14,11 +15,10 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   mode: "history",
   routes: [
-    //   {
-    //     path: "/customer/:customerId",
-    //     component: CustomerScreen,
-    //     props: ({ params: { customerId }}) => ({ customerId }),
-    //   },
+    {
+      path: "/admin/addcourse",
+      component: adminAddCourse,
+    },
     //   {
     //     path: "/operator/:operatorId",
     //     component: OperatorScreen,
