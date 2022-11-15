@@ -10,7 +10,7 @@ async function main() {
 
   const db = client.db("course-registration");
   // This part is for testing
-  console.log(await db.collection('student').insertOne({name: 'Ian Liu', department: 'ECE'}));
+  console.log(await db.collection('student').insertOne({studentId: "cl583", name: 'Ian Liu', department: 'ECE', courses: []}));
   process.exit(0);
 }
 
