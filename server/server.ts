@@ -6,12 +6,12 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 import data = require("../ui/src/data");
-import { Course, addCourseInfo } from "./data/course";
+import { Course, addCourseInfo, getAllCourse } from "./data/course";
 
 // set up Mongo
 const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
-let db: Db;
+export let db: Db;
 
 // connect to Mongo
 client.connect().then(() => {
@@ -66,14 +66,23 @@ app.post("/api/admin/addCourse", function (req, res) {
   const courseToAdd: Course = req.body;
 
   try {
-    addCourseInfo(courseToAdd)
-    return res.status(200).json(courseToAdd);
+    addCourseInfo(courseToAdd);
+    res.status(200).json(courseToAdd);
   } catch (error) {
-    return res.status(500).json(error);
+    res.status(500).json(error);
   }
 });
 
 app.get('/api/courses/:student_id', f => f)
 app.delete('/api/student/deleteCourses/:student_id', f => f)
-app.get('/api/all_courses', f => f)
+
+app.get('/api/all_courses', async (req, res) => {
+  try {
+    const allCourses = await getAllCourse();
+    console.log(allCourses)
+    res.status(200).json(allCourses);
+  } catch(error) {
+    res.status(500).json(error);
+  }
+})
 app.post('/api/student/addCourses/:student_id', f => f)
