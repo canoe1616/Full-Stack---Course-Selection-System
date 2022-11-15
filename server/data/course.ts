@@ -1,3 +1,6 @@
+import { db } from "../server"
+import { Student } from "./student"
+
 export interface Course {
     courseId: number
     name: string
@@ -13,6 +16,16 @@ export interface Course {
     department: string
 }
 
-export function addCourseInfo(course : Course){
-    // TODO: handle DB logic
+
+export async function addCourseInfo(course : Course) {
+    await db.collection('course').insertOne(course);
+}
+
+export async function getAllCourse() {
+    // console.log(await db.collection('course').find().toArray())
+    return db.collection('course').find().toArray();
+}
+
+export function addCourseToStudent(course: Course, student : Student) {
+
 }
