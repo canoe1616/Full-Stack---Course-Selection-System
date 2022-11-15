@@ -13,13 +13,6 @@ export interface Course {
     department: string
 }
 
-export interface Student {
-    studentId: number
-    courses: Course[]
-    department: string
-}
-
-
 export function addCourseInfo(course : Course){
     // TODO: handle DB logic
 }

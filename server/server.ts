@@ -6,7 +6,7 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 import data = require("../ui/src/data");
-import { Course, addCourseInfo } from "./data";
+import { Course, addCourseInfo } from "./data/course";
 
 // set up Mongo
 const url = "mongodb://127.0.0.1:27017";
