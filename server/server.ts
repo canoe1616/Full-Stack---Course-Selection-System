@@ -79,10 +79,31 @@ app.delete('/api/student/deleteCourses/:student_id', f => f)
 app.get('/api/all_courses', async (req, res) => {
   try {
     const allCourses = await getAllCourse();
-    console.log(allCourses)
     res.status(200).json(allCourses);
   } catch(error) {
     res.status(500).json(error);
   }
 })
-app.post('/api/student/addCourses/:student_id', f => f)
+
+app.post('/api/student/addCourses/:student_id', async (req, res) => {
+  const studentId = req.params.student_id;
+  const newCourses: Course[] = req.body.newCourses;
+
+  try {
+    // TODO: error checking to see whether courses exist
+    const result = await db.collection('student').updateOne(
+      {
+        studentId: studentId
+      },
+      {
+        $push: { courses: { $each : newCourses } } 
+      }
+    )
+    res.status(200).json(result)
+  } catch(error) {
+    console.log(error)
+    res.status(500).json(error);
+  }
+})
+
+// TODO: what need to be done if a course in a student is deleted
