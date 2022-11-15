@@ -11,9 +11,6 @@ import data = require("../ui/src/data");
 const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
 let db: Db;
-let customers: Collection;
-let orders: Collection;
-let operators: Collection;
 
 // set up Express
 const app = express();
@@ -45,6 +42,7 @@ app.use(
     }),
   })
 );
+
 declare module "express-session" {
   export interface SessionData {
     userId?: string;
@@ -84,6 +82,6 @@ client.connect().then(() => {
 
   // start server
   app.listen(port, () => {
-    console.log(`Smoothie server listening on port ${port}`);
+    console.log(`Course Registration server listening on port ${port}`);
   });
 });
