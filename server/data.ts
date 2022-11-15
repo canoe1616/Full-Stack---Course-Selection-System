@@ -1,21 +1,25 @@
 export interface Course {
-    courseId: string
+    courseId: number
     name: string
-    instructor: string
-    startTime: string
-    endTime: string
-    status: string
-    weekdays: string
-    capacity: number
+    instructor_name: string
+    start_time: string
+    end_time: string
+    day: string
+    location: string
+    max_capacity: number
+    curr_capacity: number
+    credits: number
+    status: "open" | "close"
+    department: string
+}
 
+export interface Student {
+    studentId: number
+    courses: Course[]
+    department: string
 }
 
 
-export function addCourseInfo(courseId: string, name: string,
-    instructor: string, startTime: string, endTime: string,
-    status: string, weekdays: string, capacity: number){
-    // course.courseId =courseId
-    // coursename,instructor,startTime,endTime,status,weekdays,capacity
-    const course: Course = {courseId, name,instructor,startTime, endTime, status, weekdays,capacity }
-    return course
+export function addCourseInfo(course : Course){
+    // TODO: handle DB logic
 }
