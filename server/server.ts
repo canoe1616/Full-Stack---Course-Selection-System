@@ -6,13 +6,15 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 import data = require("../ui/src/data");
-import { Course, addCourseInfo, getAllCourse, getStudentCourses, deleteStudentCourse } from "./data/course";
+import { Course, addCourseInfo, getAllCourse, deleteCourse } from "./data/course";
+import {getStudentCourses, deleteStudentCourse } from "./data/student"
 
 // set up Mongo
 const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
 export let db: Db;
 export let student : Collection;
+export let course : Collection;
 const dbErrorMessage = {error: 'db error'}
 
 // connect to Mongo
@@ -20,6 +22,7 @@ client.connect().then(() => {
   console.log("Connected successfully to MongoDB");
   db = client.db("course-registration");
   student = db.collection('student')
+  course = db.collection('course')
   // start server
   app.listen(port, () => {
     console.log(`Course Registration server listening on port ${port}`);
@@ -75,6 +78,18 @@ app.post("/api/admin/addCourse", function (req, res) {
   }
 });
 
+app.delete("/api/admin/deleteCourses", async (req, res) => {
+  try {
+    console.log(req.body.course_id)
+    const toDeleteCourseList = req.body.course_id
+    deleteCourse(toDeleteCourseList)
+    // TODO: one more error checking
+    res.status(200).json('success') // TODO: message meaningful
+  } catch (error) {
+    res.status(500).json(dbErrorMessage)
+  }
+})
+
 app.get('/api/courses/:student_id', async (req, res) => {
   try {
     const studentId = req.params.student_id;
@@ -92,9 +107,9 @@ app.delete('/api/student/deleteCourses/:student_id', async (req, res) => {
     const coursesToDelete = req.body.coursesToDelete
     const deletedCourses = await deleteStudentCourse(studentId, coursesToDelete)
     if (deletedCourses != coursesToDelete.length) {
-      res.status(404).json({'error' : 'course not selected in deleted list'})
+      res.status(404).json({'error': 'course not selected in deleted list'})
     }
-    res.status(200).json('success') // TODO: change the success message to be more meaningful
+    res.status(200).json({'success': `delete course ${JSON.stringify(coursesToDelete)}`})
   } catch (error) {
     res.status(500).json(dbErrorMessage)
   }
@@ -111,7 +126,7 @@ app.get('/api/all_courses', async (req, res) => {
 
 app.post('/api/student/addCourses/:student_id', async (req, res) => {
   const studentId = req.params.student_id;
-  const newCourses: Course[] = req.body.newCourses;
+  const newCourses: Course[] = req.body.newCourses; // TODO: discuss with front-ends
   const newCoursesId = newCourses.map(course => course.courseId)
 
   try {
