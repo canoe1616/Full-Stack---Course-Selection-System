@@ -88,9 +88,15 @@ app.get('/api/all_courses', async (req, res) => {
 app.post('/api/student/addCourses/:student_id', async (req, res) => {
   const studentId = req.params.student_id;
   const newCourses: Course[] = req.body.newCourses;
+  const newCoursesId = newCourses.map(course => course.courseId)
 
   try {
-    // TODO: error checking to see whether courses exist
+    const courseExist = await db.collection('course').find({ courseId: {$in: newCoursesId}}).toArray()
+    if (courseExist.length != newCoursesId.length) {
+      res.status(404).json('error: non-exist course in selected course')
+      return
+    }
+
     const result = await db.collection('student').updateOne(
       {
         studentId: studentId
