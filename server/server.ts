@@ -6,18 +6,20 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 import data = require("../ui/src/data");
-import { Course, addCourseInfo, getAllCourse } from "./data/course";
+import { Course, addCourseInfo, getAllCourse, getStudentCourses, deleteStudentCourse } from "./data/course";
 
 // set up Mongo
 const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
 export let db: Db;
+export let student : Collection;
+const dbErrorMessage = {error: 'db error'}
 
 // connect to Mongo
 client.connect().then(() => {
   console.log("Connected successfully to MongoDB");
   db = client.db("course-registration");
-
+  student = db.collection('student')
   // start server
   app.listen(port, () => {
     console.log(`Course Registration server listening on port ${port}`);
@@ -69,19 +71,41 @@ app.post("/api/admin/addCourse", function (req, res) {
     addCourseInfo(courseToAdd);
     res.status(200).json(courseToAdd);
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json(dbErrorMessage);
   }
 });
 
-app.get('/api/courses/:student_id', f => f)
-app.delete('/api/student/deleteCourses/:student_id', f => f)
+app.get('/api/courses/:student_id', async (req, res) => {
+  try {
+    const studentId = req.params.student_id;
+    const studentSelectedCourses = await getStudentCourses(studentId)
+    res.status(200).json(studentSelectedCourses)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(dbErrorMessage)
+  }
+})
+
+app.delete('/api/student/deleteCourses/:student_id', async (req, res) => {
+  try {
+    const studentId = req.params.student_id
+    const coursesToDelete = req.body.coursesToDelete
+    const deletedCourses = await deleteStudentCourse(studentId, coursesToDelete)
+    if (deletedCourses != coursesToDelete.length) {
+      res.status(404).json({'error' : 'course not selected in deleted list'})
+    }
+    res.status(200).json('success') // TODO: change the success message to be more meaningful
+  } catch (error) {
+    res.status(500).json(dbErrorMessage)
+  }
+})
 
 app.get('/api/all_courses', async (req, res) => {
   try {
     const allCourses = await getAllCourse();
     res.status(200).json(allCourses);
   } catch(error) {
-    res.status(500).json(error);
+    res.status(500).json(dbErrorMessage);
   }
 })
 
@@ -93,7 +117,7 @@ app.post('/api/student/addCourses/:student_id', async (req, res) => {
   try {
     const courseExist = await db.collection('course').find({ courseId: {$in: newCoursesId}}).toArray()
     if (courseExist.length != newCoursesId.length) {
-      res.status(404).json('error: non-exist course in selected course')
+      res.status(404).json({'error': 'non-exist course in selected course'})
       return
     }
 
@@ -107,9 +131,9 @@ app.post('/api/student/addCourses/:student_id', async (req, res) => {
     )
     res.status(200).json(result)
   } catch(error) {
-    console.log(error)
-    res.status(500).json(error);
+    res.status(500).json(dbErrorMessage);
   }
 })
 
 // TODO: what need to be done if a course in a student is deleted
+// TODO: check out where is session, and how to use seesion to optimize code
