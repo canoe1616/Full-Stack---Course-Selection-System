@@ -1,5 +1,4 @@
-import { db, student } from "../server"
-import { Student } from "./student"
+import { course, db } from "../server"
 
 export interface Course {
     courseId: string
@@ -26,32 +25,9 @@ export async function getAllCourse() {
     return db.collection('course').find().toArray();
 }
 
-export function addCourseToStudent(course: Course, student : Student) {
-
-}
-
-export function getStudentCourses(studentId: string)  {
-    return student.find({studentId : studentId})
-                    .project({courses: 1})
-                    .toArray()
-}
-
-export async function deleteStudentCourse(studentId: string, coursesToDelete : string[]) {
-    const matchedStudent = await student.findOne({studentId : studentId})
-    const withinDeleteList = (course : Course, deleteList : string[]) => {
-        const inList = deleteList.find((deleteCourse) => course.courseId === deleteCourse)
-        return !!inList
+export async function deleteCourse(toDeleteCourses: string []) {
+    for (const [_, toDeleteCourseId] of toDeleteCourses.entries()) {
+        console.log(`get` + toDeleteCourseId)
+        await course.deleteOne({"courseId" : toDeleteCourseId})
     }
-
-    const updatedCourse = (matchedStudent.courses as Course[]).filter((course) => (!withinDeleteList(course, coursesToDelete)) )
-    const res = await student.updateOne(
-        {
-            studentId: studentId
-        },
-        {
-            $set: {courses: updatedCourse}
-        }
-    )
-
-    return updatedCourse.length
 }
