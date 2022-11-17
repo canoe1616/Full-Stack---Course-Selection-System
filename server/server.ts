@@ -6,11 +6,23 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 import data = require("../ui/src/data");
+import { Course, addCourseInfo } from "./data/course";
 
 // set up Mongo
 const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
 let db: Db;
+
+// connect to Mongo
+client.connect().then(() => {
+  console.log("Connected successfully to MongoDB");
+  db = client.db("course-registration");
+
+  // start server
+  app.listen(port, () => {
+    console.log(`Course Registration server listening on port ${port}`);
+  });
+});
 
 // set up Express
 const app = express();
@@ -51,37 +63,17 @@ declare module "express-session" {
 
 // Note: the url need to start with /api/....., otherwise error will be thrown(Could not send the url)
 app.post("/api/admin/addCourse", function (req, res) {
-  //body
-  const courseId = req.body.courseId;
-  const name = req.body.name;
-  const instructor = req.body.instructor;
-  const startTime = req.body.startTime;
-  const endTime = req.body.endTime;
-  const status = req.body.status;
-  const weekdays = req.body.weekdays;
-  const capacity = req.body.number;
-
-  // Test if backend receive the data.
-  console.log(req.body);
+  const courseToAdd: Course = req.body;
 
   try {
-    // TODO: Implement logic to add to database
-
-    // You just need to return status code. No actual data need to be returned.
-    // On the front-end side, redirect to admin home after a successful course-add.
-    return res.status(200);
+    addCourseInfo(courseToAdd)
+    return res.status(200).json(courseToAdd);
   } catch (error) {
     return res.status(500).json(error);
   }
 });
 
-// connect to Mongo
-client.connect().then(() => {
-  console.log("Connected successfully to MongoDB");
-  db = client.db("course-registration");
-
-  // start server
-  app.listen(port, () => {
-    console.log(`Course Registration server listening on port ${port}`);
-  });
-});
+app.get('/api/courses/:student_id', f => f)
+app.delete('/api/student/deleteCourses/:student_id', f => f)
+app.get('/api/all_courses', f => f)
+app.post('/api/student/addCourses/:student_id', f => f)
