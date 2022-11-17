@@ -12,12 +12,13 @@ import { Course, addCourseInfo } from "./data/course";
 const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
 let db: Db;
+let maxCredit :Collection;
 
 // connect to Mongo
 client.connect().then(() => {
   console.log("Connected successfully to MongoDB");
   db = client.db("course-registration");
-
+  maxCredit = db.collection('maxCredit')
   // start server
   app.listen(port, () => {
     console.log(`Course Registration server listening on port ${port}`);
@@ -77,3 +78,25 @@ app.get('/api/courses/:student_id', f => f)
 app.delete('/api/student/deleteCourses/:student_id', f => f)
 app.get('/api/all_courses', f => f)
 app.post('/api/student/addCourses/:student_id', f => f)
+
+
+
+// GET /api/system_config
+
+ app.get("/api/system_config", async function (req, res){
+  console.log("ready to send the maxcredit back to the front end")
+  res.status(200).json((await (maxCredit).findOne()))
+ })
+
+
+// for hellp admin page
+
+
+app.put('/api/system_config', function(req, res){
+  // body: {max_credits: number}
+
+})
+
+
+
+

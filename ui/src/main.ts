@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "@/App.vue";
 import adminAddCourse from "./views/adminAddCourse.vue";
+import helloAdminPage from "./views/helloAdminPage.vue";
 
 import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 
@@ -28,6 +29,11 @@ const router = new VueRouter({
     //     path: "/",
     //     component: StatusScreen,
     //   }
+    {
+      path: "/admin/first",
+      component:helloAdminPage
+    }
+
   ],
 });
 
