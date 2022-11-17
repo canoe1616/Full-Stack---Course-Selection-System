@@ -30,7 +30,7 @@ client.connect().then(() => {
 });
 
 // set up Express
-const app = express();
+export const app = express();
 const port = parseInt(process.env.PORT) || 8095;
 app.use(bodyParser.json());
 
@@ -152,3 +152,6 @@ app.post('/api/student/addCourses/:student_id', async (req, res) => {
 
 // TODO: what need to be done if a course in a student is deleted
 // TODO: check out where is session, and how to use seesion to optimize code
+// TODO: coonect with auth mechanism
+// TODO: finish CI/CD
+// TODO: build front-end pages
