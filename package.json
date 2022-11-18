@@ -14,5 +14,8 @@
     "@typescript-eslint/eslint-plugin": "^5.42.0",
     "@typescript-eslint/parser": "^5.42.0",
     "eslint": "^8.26.0"
+  },
+  "dependencies": {
+    "@coreui/coreui": "^4.2.2"
   }
 }
