@@ -68,6 +68,7 @@ declare module "express-session" {
 
 /**
  * @param: course to add (note could only add one course at a time)
+ * @atomicity - atomic
  * @description: add a course to the database
  */
 app.post("/api/admin/addCourse", async function (req, res) {
@@ -87,7 +88,8 @@ app.post("/api/admin/addCourse", async function (req, res) {
 
 /**
  * @param: couesse to delete string[]
- * @description: delete courses from student who take this course
+ * @description: delete courses from admin, it also delete class from student's class list
+ * @atomicity - atomic
  */
 app.delete("/api/admin/deleteCourses", async (req, res) => {
   try {
@@ -113,7 +115,8 @@ app.get('/api/courses/:student_id', async (req, res) => {
 
 /**
  * @param: courses to delete - string[]
- * @description: delete courses specified in course list in student, Note: this is an atomic operation
+ * @description: delete courses specified in course list in student
+ * @atomicity - atomic
  * @error_behavior
  * - delete couese not exist in student courses list
  */
@@ -144,8 +147,8 @@ app.get('/api/all_courses', async (req, res) => {
 
 /**
  * @param: new class id list to add - string[]
- * @description: add course to student course list. Note: this operation is atomic. Hence, when
- * it is fail, no class would be add into student class list
+ * @description: add course to student course list.
+ * @atomicity - atomic
  * @error_behavior - 
  * - add course already in student course list
  * - add course not in admin course page (i.e. this course is not exist)
