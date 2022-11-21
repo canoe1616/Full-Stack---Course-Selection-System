@@ -31,7 +31,6 @@ export async function getAllCourse() {
 
 export async function deleteCourse(toDeleteCourses: string []) {
     for (const [_, toDeleteCourseId] of toDeleteCourses.entries()) {
-        console.log(`get` + toDeleteCourseId)
         await coursedb.deleteOne({"courseId" : toDeleteCourseId})
     }
 }
