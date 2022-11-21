@@ -1,4 +1,5 @@
 import { coursedb, db } from "../server"
+import { deleteStudentCourse, Student } from "./student"
 
 export interface Course {
     courseId: string
@@ -25,7 +26,6 @@ export async function addCourseInfo(course : Course) {
 }
 
 export async function getAllCourse() {
-    // console.log(await db.collection('course').find().toArray())
     return db.collection('course').find().toArray();
 }
 
@@ -33,5 +33,13 @@ export async function deleteCourse(toDeleteCourses: string []) {
     for (const [_, toDeleteCourseId] of toDeleteCourses.entries()) {
         console.log(`get` + toDeleteCourseId)
         await coursedb.deleteOne({"courseId" : toDeleteCourseId})
+    }
+}
+
+export async function deleteCourseFromAllStudent(toDelCourseId: string[]) {
+    const students = await db.collection('student').find({}).toArray()
+
+    for (const [_, student] of students.entries()) {
+       deleteStudentCourse(student.studentId, toDelCourseId)
     }
 }

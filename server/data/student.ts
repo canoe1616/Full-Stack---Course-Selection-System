@@ -1,6 +1,6 @@
 import { Course } from './course'
 import { User } from './user'
-import { db, student } from '../server'
+import { db } from '../server'
 
 export interface Student extends User {
     studentId: string
@@ -9,20 +9,23 @@ export interface Student extends User {
 }
 
 export function getStudentCourses(studentId: string)  {
-    return student.find({studentId : studentId})
+    return db.collection('student').find({studentId : studentId})
                     .project({courses: 1})
                     .toArray()
 }
 
 export async function deleteStudentCourse(studentId: string, coursesToDelete : string[]) {
-    const matchedStudent = await student.findOne({studentId : studentId})
+    const matchedStudent = await db.collection('student').findOne({studentId : studentId})
     const withinDeleteList = (course : Course, deleteList : string[]) => {
         const inList = deleteList.find((deleteCourse) => course.courseId === deleteCourse)
         return !!inList
     }
 
     const updatedCourse = (matchedStudent.courses as Course[]).filter((course) => (!withinDeleteList(course, coursesToDelete)) )
-    const res = await student.updateOne(
+    const actualUpdateLength = matchedStudent.courses.length - updatedCourse.length;
+    if (actualUpdateLength != coursesToDelete.length) { return }
+
+    await db.collection('student').updateOne(
         {
             studentId: studentId
         },
@@ -31,7 +34,7 @@ export async function deleteStudentCourse(studentId: string, coursesToDelete : s
         }
     )
 
-    return updatedCourse.length
+    return actualUpdateLength
 }
 
 
