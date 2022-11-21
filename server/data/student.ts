@@ -1,6 +1,6 @@
 import { Course } from './course'
 import { User } from './user'
-import { student } from '../server'
+import { db, student } from '../server'
 
 export interface Student extends User {
     studentId: string
@@ -32,4 +32,15 @@ export async function deleteStudentCourse(studentId: string, coursesToDelete : s
     )
 
     return updatedCourse.length
+}
+
+
+export async function coursesInStudentClassList(studentId: string, newCoursesId: string[]) : Promise<string> | null {
+    const student = await db.collection('student').findOne({studentId: studentId})
+    if (student === null || student.courses.length == 0) {
+        return null;
+    }
+
+    const duplicateCourse = student.courses.map((course : Course) => newCoursesId.find(newCourse => newCourse === course.courseId))
+    return duplicateCourse
 }

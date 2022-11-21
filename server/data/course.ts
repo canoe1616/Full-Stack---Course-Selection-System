@@ -1,4 +1,4 @@
-import { course, db } from "../server"
+import { coursedb, db } from "../server"
 
 export interface Course {
     courseId: string
@@ -17,7 +17,11 @@ export interface Course {
 
 
 export async function addCourseInfo(course : Course) {
-    await db.collection('course').insertOne(course);
+    const res = await coursedb.findOne({courseId: course.courseId})
+    if (res === null) {
+        await db.collection('course').insertOne(course);
+    }
+    return res
 }
 
 export async function getAllCourse() {
@@ -28,6 +32,6 @@ export async function getAllCourse() {
 export async function deleteCourse(toDeleteCourses: string []) {
     for (const [_, toDeleteCourseId] of toDeleteCourses.entries()) {
         console.log(`get` + toDeleteCourseId)
-        await course.deleteOne({"courseId" : toDeleteCourseId})
+        await coursedb.deleteOne({"courseId" : toDeleteCourseId})
     }
 }
