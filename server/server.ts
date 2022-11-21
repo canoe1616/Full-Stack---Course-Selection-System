@@ -6,14 +6,13 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 import data = require("../ui/src/data");
-import { Course, addCourseInfo, getAllCourse, deleteCourse } from "./data/course";
+import { Course, addCourseInfo, getAllCourse, deleteCourse, deleteCourseFromAllStudent } from "./data/course";
 import {getStudentCourses, deleteStudentCourse, coursesInStudentClassList } from "./data/student"
 
 // set up Mongo
 const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
 export let db: Db;
-export let student : Collection;
 export let coursedb : Collection;
 const dbErrorMessage = {error: 'db error'}
 
@@ -21,7 +20,6 @@ const dbErrorMessage = {error: 'db error'}
 client.connect().then(() => {
   console.log("Connected successfully to MongoDB");
   db = client.db("course-registration");
-  student = db.collection('student')
   coursedb = db.collection('course')
   // start server
   app.listen(port, () => {
@@ -87,13 +85,16 @@ app.post("/api/admin/addCourse", async function (req, res) {
   }
 });
 
+/**
+ * @param: couesse to delete string[]
+ * @description: delete courses from student who take this course
+ */
 app.delete("/api/admin/deleteCourses", async (req, res) => {
   try {
-    console.log(req.body.course_id)
-    const toDeleteCourseList = req.body.course_id
+    const toDeleteCourseList = req.body.coursesToDelete
     deleteCourse(toDeleteCourseList)
-    // TODO: one more error checking
-    res.status(200).json('success') // TODO: message meaningful
+    deleteCourseFromAllStudent(toDeleteCourseList)
+    res.status(200).json({'result': `deleted course ${toDeleteCourseList}`})
   } catch (error) {
     res.status(500).json(dbErrorMessage)
   }
@@ -110,15 +111,23 @@ app.get('/api/courses/:student_id', async (req, res) => {
   }
 })
 
+/**
+ * @param: courses to delete - string[]
+ * @description: delete courses specified in course list in student, Note: this is an atomic operation
+ * @error_behavior
+ * - delete couese not exist in student courses list
+ */
 app.delete('/api/student/deleteCourses/:student_id', async (req, res) => {
   try {
     const studentId = req.params.student_id
     const coursesToDelete = req.body.coursesToDelete
-    const deletedCourses = await deleteStudentCourse(studentId, coursesToDelete)
-    if (deletedCourses != coursesToDelete.length) {
-      res.status(404).json({'error': 'course not selected in deleted list'})
+    const deletedCoursesLength = await deleteStudentCourse(studentId, coursesToDelete)
+    if (deletedCoursesLength !== coursesToDelete.length) {
+      res.status(404).json({'error': `deleted courses not selected by student ${studentId}`})
+      return
     }
-    res.status(200).json({'success': `delete course ${JSON.stringify(coursesToDelete)}`})
+
+    res.status(200).json({'result': `delete course ${coursesToDelete}`})
   } catch (error) {
     res.status(500).json(dbErrorMessage)
   }
@@ -134,7 +143,7 @@ app.get('/api/all_courses', async (req, res) => {
 })
 
 /**
- * @param: new class id list to add - [string]
+ * @param: new class id list to add - string[]
  * @description: add course to student course list. Note: this operation is atomic. Hence, when
  * it is fail, no class would be add into student class list
  * @error_behavior - 
