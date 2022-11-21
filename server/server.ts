@@ -7,14 +7,14 @@ import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 import data = require("../ui/src/data");
 import { Course, addCourseInfo, getAllCourse, deleteCourse } from "./data/course";
-import {getStudentCourses, deleteStudentCourse } from "./data/student"
+import {getStudentCourses, deleteStudentCourse, coursesInStudentClassList } from "./data/student"
 
 // set up Mongo
 const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
 export let db: Db;
 export let student : Collection;
-export let course : Collection;
+export let coursedb : Collection;
 const dbErrorMessage = {error: 'db error'}
 
 // connect to Mongo
@@ -22,7 +22,7 @@ client.connect().then(() => {
   console.log("Connected successfully to MongoDB");
   db = client.db("course-registration");
   student = db.collection('student')
-  course = db.collection('course')
+  coursedb = db.collection('course')
   // start server
   app.listen(port, () => {
     console.log(`Course Registration server listening on port ${port}`);
@@ -34,13 +34,14 @@ export const app = express();
 const port = parseInt(process.env.PORT) || 8095;
 app.use(bodyParser.json());
 
+// TODO: uncomment this when push
 // set up Pino logging
-const logger = pino({
-  transport: {
-    target: "pino-pretty",
-  },
-});
-app.use(expressPinoLogger({ logger }));
+// const logger = pino({
+//   transport: {
+//     target: "pino-pretty",
+//   },
+// });
+// app.use(expressPinoLogger({ logger }));
 
 // set up session
 app.use(
@@ -66,12 +67,20 @@ declare module "express-session" {
   }
 }
 
-// Note: the url need to start with /api/....., otherwise error will be thrown(Could not send the url)
-app.post("/api/admin/addCourse", function (req, res) {
+
+/**
+ * @param: course to add (note could only add one course at a time)
+ * @description: add a course to the database
+ */
+app.post("/api/admin/addCourse", async function (req, res) {
   const courseToAdd: Course = req.body;
 
   try {
-    addCourseInfo(courseToAdd);
+    const ret = await addCourseInfo(courseToAdd);
+    if (ret !== null) {
+      res.status(500).json({'error': 'add duplicate course'})
+      return
+    }
     res.status(200).json(courseToAdd);
   } catch (error) {
     res.status(500).json(dbErrorMessage);
@@ -124,27 +133,40 @@ app.get('/api/all_courses', async (req, res) => {
   }
 })
 
+/**
+ * @param: new class id list to add - [string]
+ * @description: add course to student course list. Note: this operation is atomic. Hence, when
+ * it is fail, no class would be add into student class list
+ * @error_behavior - 
+ * - add course already in student course list
+ * - add course not in admin course page (i.e. this course is not exist)
+ */
 app.post('/api/student/addCourses/:student_id', async (req, res) => {
   const studentId = req.params.student_id;
-  const newCourses: Course[] = req.body.newCourses; // TODO: discuss with front-ends
-  const newCoursesId = newCourses.map(course => course.courseId)
+  const newCoursesId = req.body.newCourses
 
   try {
-    const courseExist = await db.collection('course').find({ courseId: {$in: newCoursesId}}).toArray()
-    if (courseExist.length != newCoursesId.length) {
+    const coursesToAdd = await db.collection('course').find({ courseId: {$in: newCoursesId}}).toArray()
+    if (coursesToAdd.length != newCoursesId.length) {
       res.status(404).json({'error': 'non-exist course in selected course'})
       return
     }
 
-    const result = await db.collection('student').updateOne(
+    const duplicateCourseToAdd = await coursesInStudentClassList(studentId, newCoursesId)
+    if (duplicateCourseToAdd) {
+      res.status(404).json({'error': `courses ${duplicateCourseToAdd} already in student course list`})
+      return
+    }
+
+    await db.collection('student').updateOne(
       {
         studentId: studentId
       },
       {
-        $push: { courses: { $each : newCourses } } 
+        $push: { courses: { $each : coursesToAdd } } 
       }
     )
-    res.status(200).json(result)
+    res.status(200).json({'result': `classes ${newCoursesId} added`})
   } catch(error) {
     res.status(500).json(dbErrorMessage);
   }
