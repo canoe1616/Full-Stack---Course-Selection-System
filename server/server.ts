@@ -19,6 +19,7 @@ client.connect().then(() => {
   console.log("Connected successfully to MongoDB");
   db = client.db("course-registration");
   maxCredit = db.collection('maxCredit')
+  console.log(`the mexcredit get from the database is ${maxCredit}`)
   // start server
   app.listen(port, () => {
     console.log(`Course Registration server listening on port ${port}`);
@@ -85,6 +86,8 @@ app.post('/api/student/addCourses/:student_id', f => f)
 
  app.get("/api/system_config", async function (req, res){
   console.log("ready to send the maxcredit back to the front end")
+  maxCredit = db.collection('maxCredit')
+  console.log(maxCredit)
   res.status(200).json((await (maxCredit).findOne()))
  })
 
@@ -92,9 +95,14 @@ app.post('/api/student/addCourses/:student_id', f => f)
 // for hellp admin page
 
 
-app.put('/api/system_config', function(req, res){
-  // body: {max_credits: number}
-
+app.put('/api/system_config', async function(req, res){ 
+  console.log(req.body.maxCredit)
+  console.log(req.body.newMaxCredit)
+  const result = await maxCredit.updateOne(
+    {"max_credits" : req.body.maxCredit},
+    {$set: { "max_credits" : req.body.newMaxCredit }}
+  )
+  res.status(200).json({ status: "ok" })
 })
 
 
