@@ -27,6 +27,7 @@
   "scripts": {
     "start": "ts-node-dev --respawn server.ts",
     "setup": "ts-node ./db/setupMongo.ts",
+    "test": "jest",
     "lint": "eslint . --ext .ts"
   }
 }
