@@ -3,7 +3,7 @@
     <div class="mx-3 my-3">
         <h2>Hello, Admin</h2>
         <span>Current Max Credit {{maxCredit}}</span>
-        <b-form-input id="numberOfMaxCredit-input" type="number" v-model.number="newMaxCredit"  />
+        <b-form-input id="numberOfMaxCredit-input" type="number" v-model.number="newMaxCredit" />
         <b-button size = "sm" @click ="editMaxCredit(maxCredit, newMaxCredit)" class="mx-2 my-2" >edit maxCredit</b-button>
     </div>
   </template>
@@ -21,13 +21,12 @@
 
   async function refresh() {
     system = await (await fetch("/api/system_config")).json()
-    console.log(system.max_credits)
     maxCredit.value = system.max_credits
 }
   onMounted(refresh)
 
   async function editMaxCredit(maxCredit: number, newMaxCredit:number){
-    if(maxCredit && newMaxCredit){
+    if(newMaxCredit){
         const response = await fetch(`/api/system_config`,{
 		headers: {
 			"Content-Type": "application/json",
