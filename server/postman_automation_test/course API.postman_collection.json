@@ -1,0 +1,602 @@
+{
+	"info": {
+		"_postman_id": "6447049a-7fed-430d-b681-a01240f92b8f",
+		"name": "course API",
+		"description": "Buy or rent spacecrafts",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8095/api/admin/addCourse",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Test POST /api/admin/addCourse', function () {",
+							"    pm.response.to.have.status(200)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"courseId\": \"ECE651\",\n    \"name\": \"Software Engineering\",\n    \"instructor_name\": \"Drew\",\n    \"start_time\": \"2023-01-11\",\n    \"end_time\": \"2023-06-01\",\n    \"day\": \"Wed/Fri\",\n    \"location\": \"Wilkinson 130\",\n    \"max_capacity\": 30,\n    \"curr_capacity\": 12,\n    \"credits\": 3,\n    \"status\": \"open\",\n    \"department\": \"ECE\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8095/api/admin/addCourse",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"admin",
+						"addCourse"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/admin/addCourse Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Test POST /api/admin/addCourse', function () {",
+							"    pm.response.to.have.status(200)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"courseId\": \"ECE650\",\n        \"name\": \"Robust Server\",\n        \"instructor_name\": \"Drew\",\n        \"start_time\": \"2023-01-11\",\n        \"end_time\": \"2023-06-01\",\n        \"day\": \"Wed/Fri\",\n        \"location\": \"Wilkinson 130\",\n        \"max_capacity\": 30,\n        \"curr_capacity\": 12,\n        \"credits\": 3,\n        \"status\": \"open\",\n        \"department\": \"ECE\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8095/api/admin/addCourse",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"admin",
+						"addCourse"
+					],
+					"query": [
+						{
+							"key": "course",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/admin/addCourse",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Test POST Duplicate /api/admin/addCourse', function () {",
+							"    pm.response.to.have.status(500)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"courseId\": \"ECE650\",\n        \"name\": \"Robust Server\",\n        \"instructor_name\": \"Drew\",\n        \"start_time\": \"2023-01-11\",\n        \"end_time\": \"2023-06-01\",\n        \"day\": \"Wed/Fri\",\n        \"location\": \"Wilkinson 130\",\n        \"max_capacity\": 30,\n        \"curr_capacity\": 12,\n        \"credits\": 3,\n        \"status\": \"open\",\n        \"department\": \"ECE\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8095/api/admin/addCourse",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"admin",
+						"addCourse"
+					],
+					"query": [
+						{
+							"key": "course",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/student/addCourses/cl583",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test normal add course to student\", () => {",
+							"    const res = pm.response.json()",
+							"    pm.expect(res.result).eql(\"classes ECE650,ECE651 added\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"newCourses\": [\"ECE650\", \"ECE651\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8095/api/student/addCourses/cl583",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"student",
+						"addCourses",
+						"cl583"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/student/addCourses/cl583 Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test normal add course to student\", () => {",
+							"    const res = pm.response.json()",
+							"    pm.expect(res.result).eql(\"classes ECE650 added\")",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"newCourses\": [\"ECE650\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8095/api/student/addCourses/sh123",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"student",
+						"addCourses",
+						"sh123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/student/addCourses/cl583 Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test normal add course to student\", () => {",
+							"    pm.response.to.have.status(404)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"newCourses\": [\"ECE650\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8095/api/student/addCourses/cl583",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"student",
+						"addCourses",
+						"cl583"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/student/addCourses/cl583",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test non-exist course Id of different type\", () => {",
+							"    const res = pm.response.json()",
+							"    pm.expect(res.error).to.eql(\"non-exist course in selected course\")",
+							"    pm.response.to.have.status(404)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"newCourses\": [\"ECE651\", \"ECE250\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8095/api/student/addCourses/cl583",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"student",
+						"addCourses",
+						"cl583"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/student/addCourses/cl583",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Test non-exist course Id of different type\", () => {",
+							"    const res = pm.response.json()",
+							"    pm.expect(res.error).to.eql(\"non-exist course in selected course\")",
+							"    pm.response.to.have.status(404)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"newCourses\": [\"ECE651\", 3]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8095/api/student/addCourses/cl583",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"student",
+						"addCourses",
+						"cl583"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/all_courses",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('test /api/all_courses', () => {",
+							"    pm.expect(pm.response.json().length).to.eql(2)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8095/api/all_courses",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"all_courses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/courses/cl583",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"GET student cl583 course\", () => {",
+							"    const res = pm.response.json()",
+							"    pm.expect(res[0].courses.length).eql(2)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8095/api/courses/cl583",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"courses",
+						"cl583"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/student/deleteCourses/cl583",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('test normal delete from student cl583', () => {",
+							"    const res = pm.response.json()",
+							"    pm.response.to.have.status(200)",
+							"    pm.response.to.have.jsonBody(\"result\")   ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"coursesToDelete\": [\"ECE651\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8095/api/student/deleteCourses/cl583",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"student",
+						"deleteCourses",
+						"cl583"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/student/deleteCourses/cl583 Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('test normal delete from student cl583', () => {",
+							"    const res = pm.response.json()",
+							"    pm.response.to.have.status(404)",
+							"    pm.response.to.have.jsonBody(\"error\")   ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"coursesToDelete\": [\"ECE651\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8095/api/student/deleteCourses/cl583",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"student",
+						"deleteCourses",
+						"cl583"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8095/api/admin/deleteCourses",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"coursesToDelete\": [\"ECE650\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8095/api/admin/deleteCourses",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8095",
+					"path": [
+						"api",
+						"admin",
+						"deleteCourses"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "key",
+				"value": "X-Api-Key",
+				"type": "string"
+			},
+			{
+				"key": "value",
+				"value": "<API Key>",
+				"type": "string"
+			},
+			{
+				"key": "in",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "/",
+			"type": "string"
+		}
+	]
+}

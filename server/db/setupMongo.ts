@@ -16,10 +16,9 @@ async function main() {
   console.log("Connected successfully to MongoDB");
 
   const db = client.db("course-registration");
-  // This part is for testing
-  console.log(await db.collection('student').insertOne({name: 'Ian Liu', department: 'ECE'}));
-  // This part is for maxCredit original setting
   console.log("inserting maxCredit", await db.collection("maxCredit").insertOne( maxCredit as any))
+  console.log(await db.collection('student').insertOne({studentId: "cl583", name: 'Ian Liu', department: 'ECE', courses: []}));
+
   process.exit(0);
 }
 
