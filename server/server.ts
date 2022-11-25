@@ -12,15 +12,21 @@ import {getStudentCourses, deleteStudentCourse, coursesInStudentClassList } from
 // set up Mongo
 const url = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
+
+
 export let db: Db;
 export let coursedb : Collection;
+export let maxCredit :Collection;
 const dbErrorMessage = {error: 'db error'}
+
 
 // connect to Mongo
 client.connect().then(() => {
   console.log("Connected successfully to MongoDB");
   db = client.db("course-registration");
+  maxCredit = db.collection('maxCredit')
   coursedb = db.collection('course')
+
   // start server
   app.listen(port, () => {
     console.log(`Course Registration server listening on port ${port}`);
@@ -85,6 +91,53 @@ app.post("/api/admin/addCourse", async function (req, res) {
     res.status(500).json(dbErrorMessage);
   }
 });
+
+
+
+/**
+ * @param: the maxcredit that either originally from the database which is 0 or editted by the admin
+ * @atomicity - atomic
+ * @description: get the updated/original maxCredit
+ */
+
+ app.get("/api/system_config", async function (req, res){
+  const maxCreditValue = await maxCredit.findOne({})
+  if (maxCreditValue === null) {
+    res.status(200).json({max_credits: 0})
+    return
+  }
+
+  res.status(200).json({max_credits: maxCreditValue.max_credits})
+ })
+
+
+/**
+ * @param: the maxcredit that editted by the admin from the frontend and need to be updated in the MongoDB database
+ * @atomicity - atomic
+ * @description: updated the new maxCredit in the MongoDB database
+ */
+
+app.put('/api/system_config', async function(req, res){
+  const maxCreditValue = await maxCredit.findOne({})
+  console.log(maxCreditValue)
+  if (maxCreditValue === null) {
+    await maxCredit.insertOne(
+      {
+        max_credits: req.body.newMaxCredit
+      }
+    )
+    res.status(200).json({ status: "ok" })
+    return
+  }
+
+
+  await maxCredit.updateOne(
+    {"max_credits" : req.body.maxCredit},
+    {$set: { "max_credits" : req.body.newMaxCredit }}
+  )
+  res.status(200).json({ status: "ok" })
+})
+
 
 /**
  * @param: couesse to delete string[]
@@ -189,3 +242,4 @@ app.post('/api/student/addCourses/:student_id', async (req, res) => {
 // TODO: coonect with auth mechanism
 // TODO: finish CI/CD
 // TODO: build front-end pages
+
