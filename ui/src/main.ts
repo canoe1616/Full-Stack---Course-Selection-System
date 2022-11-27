@@ -3,6 +3,8 @@ import VueRouter from "vue-router";
 import App from "@/App.vue";
 import adminAddCourse from "./views/adminAddCourse.vue";
 import helloAdminPage from "./views/helloAdminPage.vue";
+import studentViewAllCourses from "./views/StudentViewAllCourses.vue";
+import studentViewMyCourses from "./views/StudentViewMyCourses.vue";
 
 import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 
@@ -32,8 +34,15 @@ const router = new VueRouter({
     {
       path: "/admin/first",
       component:helloAdminPage
-    }
-
+    },
+    {
+      path: "/view-all-courses",
+      component: studentViewAllCourses,
+    },
+    {
+      path: "/view-my-courses",
+      component: studentViewMyCourses,
+    },
   ],
 });
 

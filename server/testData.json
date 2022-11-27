@@ -1,0 +1,37 @@
+{
+  "test_user": {
+    "userId": "cl583",
+    "role": "student",
+    "name": "Ian"
+  },
+  "test_allCourses": [
+    {
+      "courseId": "12345",
+      "name": "CS 590",
+      "instructor_name": "Dennis Quan",
+      "start_time": "3:30pm",
+      "end_time": "5:00pm",
+      "day": "Wed",
+      "location": "Wilkinson 120",
+      "max_capacity": 20,
+      "curr_capacity": 12,
+      "credits": 4,
+      "status": "open",
+      "department": "CS"
+    },
+    {
+      "courseId": "234525",
+      "name": "ECE 651",
+      "instructor_name": "Drew Hilton",
+      "start_time": "3:30pm",
+      "end_time": "5:00pm",
+      "day": "Thu",
+      "location": "Physics 120",
+      "max_capacity": 10,
+      "curr_capacity": 10,
+      "credits": 3,
+      "status": "close",
+      "department": "ECE"
+    }
+  ]
+}
