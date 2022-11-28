@@ -43,7 +43,7 @@ app.use(
     // of course, will not persist across load balanced servers
     // or survive a restart of the server
     store: MongoStore.create({
-      mongoUrl: "mongodb://127.0.0.1:27017",
+      mongoUrl: url,
       ttl: 14 * 24 * 60 * 60, // 14 days
     }),
   })
