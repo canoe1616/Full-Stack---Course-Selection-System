@@ -5,7 +5,7 @@ import expressPinoLogger from "express-pino-logger";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
-import testData from "../server/testData.json";
+import testData from "./testData.json";
 import { Course, addCourseInfo, getAllCourse, deleteCourse, deleteCourseFromAllStudent } from "./data/course";
 import {getStudentCourses, deleteStudentCourse, coursesInStudentClassList } from "./data/student"
 
