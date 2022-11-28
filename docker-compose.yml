@@ -32,3 +32,30 @@ services:
       - mongo:/data/db
     ports:
       - "127.0.0.1:27017:27017"
+  ui1:
+    image: ui
+    build: ./ui
+    networks:
+      - lecture21
+    # ports:
+    # - "127.0.0.1:8096:8096"
+  ui2:
+    image: ui
+    build: ./ui
+    networks:
+      - lecture21
+    # ports:
+    # - "127.0.0.1:8096:8096"  
+  load_balancer:
+    image: nginx_load_balancer
+    build: ./nginx-load-balancer
+    networks:
+      - lecture21
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - ui1
+      - ui2
+      - server1    
+
+
