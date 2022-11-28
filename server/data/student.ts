@@ -44,6 +44,6 @@ export async function coursesInStudentClassList(studentId: string, newCoursesId:
         return null;
     }
 
-    const duplicateCourse = student.courses.filter((course : Course) => newCoursesId.find(newCourse => newCourse === course.courseId))
+    const duplicateCourse = [...student.courses.filter((course : Course) => newCoursesId.find(newCourse => newCourse === course.courseId))]
     return duplicateCourse
 }

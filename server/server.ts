@@ -202,7 +202,7 @@ app.post('/api/student/addCourses/:student_id', async (req, res) => {
     }
 
     const duplicateCourseToAdd = await coursesInStudentClassList(studentId, newCoursesId)
-    if (duplicateCourseToAdd.length !== 0) {
+    if (duplicateCourseToAdd !== null && duplicateCourseToAdd.length !== 0) {
       res.status(404).json({'error': `courses ${duplicateCourseToAdd} already in student course list`})
       return
     }
@@ -228,6 +228,7 @@ app.post('/api/student/addCourses/:student_id', async (req, res) => {
     )
     res.status(200).json({'result': `classes ${newCoursesId} added`})
   } catch(error) {
+    console.log(error)
     res.status(500).json(dbErrorMessage);
   }
 })
