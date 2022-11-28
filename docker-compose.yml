@@ -1,0 +1,34 @@
+version: "3"
+
+networks:
+  lecture21:
+    external: false
+
+volumes:
+  # keycloak:
+  #   driver: local
+  mongo:
+    driver: local
+
+services:
+  server1:
+    image: server
+    build: ./server
+    environment:
+      - MONGO_URL=mongodb://mongo
+    depends_on:
+      - mongo
+    networks:
+      - lecture21
+    ports:
+      - "127.0.0.1:8095:8095"
+  mongo:
+    image: mongo:4
+    container_name: mongo
+    restart: always
+    networks:
+      - lecture21
+    volumes:
+      - mongo:/data/db
+    ports:
+      - "127.0.0.1:27017:27017"

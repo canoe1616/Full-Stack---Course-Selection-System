@@ -38,12 +38,12 @@ export async function deleteStudentCourse(studentId: string, coursesToDelete : s
 }
 
 
-export async function coursesInStudentClassList(studentId: string, newCoursesId: string[]) : Promise<string> | null {
+export async function coursesInStudentClassList(studentId: string, newCoursesId: string[]) : Promise<string[]> {
     const student = await db.collection('student').findOne({studentId: studentId})
     if (student === null || student.courses.length == 0) {
         return null;
     }
 
-    const duplicateCourse = student.courses.map((course : Course) => newCoursesId.find(newCourse => newCourse === course.courseId))
+    const duplicateCourse = [...student.courses.filter((course : Course) => newCoursesId.find(newCourse => newCourse === course.courseId))]
     return duplicateCourse
 }

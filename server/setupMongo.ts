@@ -1,12 +1,11 @@
 import { MongoClient } from "mongodb";
-import { SystemConfig } from "../data/systemConfig";
+import { SystemConfig } from "./data/systemConfig";
 
 const url = "mongodb://localhost:27017";
 const client = new MongoClient(url);
 
 const maxCredit:SystemConfig = {
   max_credits : 0
-
 };
 
 
