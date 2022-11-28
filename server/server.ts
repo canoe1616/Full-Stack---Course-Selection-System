@@ -5,23 +5,12 @@ import expressPinoLogger from "express-pino-logger";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
-import data = require("../ui/src/data");
-import {
-  Course,
-  addCourseInfo,
-  getAllCourse,
-  deleteCourse,
-  deleteCourseFromAllStudent,
-} from "./data/course";
-import {
-  getStudentCourses,
-  deleteStudentCourse,
-  coursesInStudentClassList,
-} from "./data/student";
 import testData from "../server/testData.json";
+import { Course, addCourseInfo, getAllCourse, deleteCourse, deleteCourseFromAllStudent } from "./data/course";
+import {getStudentCourses, deleteStudentCourse, coursesInStudentClassList } from "./data/student"
 
 // set up Mongo
-const url = "mongodb://127.0.0.1:27017";
+const url = process.env.MONGO_URL || "mongodb://127.0.0.1:27017";
 const client = new MongoClient(url);
 
 export let db: Db;
@@ -29,26 +18,11 @@ export let coursedb: Collection;
 export let maxCredit: Collection;
 const dbErrorMessage = { error: "db error" };
 
-
-// connect to Mongo
-client.connect().then(() => {
-  console.log("Connected successfully to MongoDB");
-  db = client.db("course-registration");
-  maxCredit = db.collection("maxCredit");
-  coursedb = db.collection("course");
-
-  // start server
-  app.listen(port, () => {
-    console.log(`Course Registration server listening on port ${port}`);
-  });
-});
-
 // set up Express
 export const app = express();
 const port = parseInt(process.env.PORT) || 8095;
 app.use(bodyParser.json());
 
-// TODO: uncomment this when push
 // set up Pino logging
 // const logger = pino({
 //   transport: {
@@ -282,20 +256,24 @@ app.post("/api/student/addCourses/:student_id", async (req, res) => {
       return;
     }
 
-    const duplicateCourseToAdd = await coursesInStudentClassList(
-      studentId,
-      newCoursesId
-    );
-    if (duplicateCourseToAdd) {
-      res
-        .status(404)
-        .json({
-          error: `courses ${duplicateCourseToAdd} already in student course list`,
-        });
-      return;
+    const duplicateCourseToAdd = await coursesInStudentClassList(studentId, newCoursesId)
+    if (duplicateCourseToAdd.length !== 0) {
+      res.status(404).json({'error': `courses ${duplicateCourseToAdd} already in student course list`})
+      return
     }
 
-    await db.collection("student").updateOne(
+    const studentExist = await db.collection('student').findOne(
+      {
+        studentId: studentId
+      }
+    );
+
+    if (studentExist === null) {
+      res.status(404).json({'error': `student ${studentId} not exist`})
+      return
+    }
+
+    await db.collection('student').updateOne(
       {
         studentId: studentId,
       },
@@ -314,3 +292,17 @@ app.post("/api/student/addCourses/:student_id", async (req, res) => {
 // TODO: coonect with auth mechanism
 // TODO: finish CI/CD
 // TODO: build front-end pages
+
+
+// connect to Mongo
+client.connect().then(() => {
+  console.log("Connected successfully to MongoDB");
+  db = client.db("course-registration");
+  maxCredit = db.collection('maxCredit')
+  coursedb = db.collection('course')
+
+  // start server
+  app.listen(port, () => {
+    console.log(`Course Registration server listening on port ${port}`);
+  });
+});
