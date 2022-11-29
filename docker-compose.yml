@@ -20,8 +20,19 @@ services:
       - mongo
     networks:
       - lecture21
-    ports:
-      - "127.0.0.1:8095:8095"
+    # ports:
+    #   - "127.0.0.1:8095:8095"
+  server2:
+    image: server
+    build: ./server
+    environment:
+      - MONGO_URL=mongodb://mongo
+    depends_on:
+      - mongo
+    networks:
+      - lecture21
+    # ports:
+    #   - "127.0.0.1:8095:8095"
   mongo:
     image: mongo:4
     container_name: mongo
