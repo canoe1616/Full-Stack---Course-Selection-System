@@ -3,8 +3,8 @@ import VueRouter from "vue-router";
 import App from "@/App.vue";
 import adminAddCourse from "./views/adminAddCourse.vue";
 import helloAdminPage from "./views/helloAdminPage.vue";
-import studentViewAllCourses from "./views/StudentViewAllCourses.vue";
-import studentViewMyCourses from "./views/StudentViewMyCourses.vue";
+import studentViewAllCourses from "./views/studentViewAllCourses.vue";
+import studentViewMyCourses from "./views/studentViewMyCourses.vue";
 
 import { BootstrapVue, BootstrapVueIcons } from "bootstrap-vue";
 
