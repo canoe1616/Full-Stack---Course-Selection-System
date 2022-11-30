@@ -82,13 +82,14 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 async function registerCourse(courseId: string) {
+  console.log(courseId);
   const response = await fetch(`/api/student/addCourses/${user.value.userId}`, {
     headers: {
       "Content-Type": "application/json",
     },
     method: "POST",
     body: JSON.stringify({
-      courseId,
+      courseId: [courseId],
     }),
   });
 
@@ -108,7 +109,7 @@ async function dropCourse(courseId: string) {
       },
       method: "DELETE",
       body: JSON.stringify({
-        courseId,
+        courseId: [courseId],
       }),
     }
   );

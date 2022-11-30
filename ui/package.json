@@ -13,6 +13,7 @@
     "@vueuse/core": "^9.0.0",
     "bootstrap-vue": "^2.22.0",
     "core-js": "^3.24.0",
+    "url-search-params-polyfill": "^8.1.1",
     "vue": "^2.7.8",
     "vue-router": "^3.6.5"
   },

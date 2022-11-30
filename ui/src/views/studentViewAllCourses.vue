@@ -47,8 +47,9 @@ const showSuccessAllert: Ref<boolean> = ref(false);
 const showFailureAllert: Ref<boolean> = ref(false);
 
 async function refresh() {
-  console.log(user.value);
-  allCourses.value = await (await fetch(`/api/all_courses/`)).json();
+  if (user.value.userId) {
+    allCourses.value = await (await fetch(`/api/all_courses/`)).json();
+  }
 }
 watch(user, refresh, { immediate: true });
 onMounted(refresh);

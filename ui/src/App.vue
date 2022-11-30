@@ -7,7 +7,7 @@
     >
       <b-navbar-brand href="#">
         <span v-if="user?.name">Welcome, {{ user.name }}</span>
-        <span v-else>Smoothie Stand</span>
+        <span v-else>Couse registration</span>
       </b-navbar-brand>
       <b-navbar-nav>
         <b-nav-item href="/view-all-courses">View all courses</b-nav-item>
@@ -26,12 +26,20 @@
 <script setup lang="ts">
 import { onMounted, ref, provide, Ref } from "vue";
 import { User } from "../../server/data/user";
+import { useRoute, useRouter } from "vue-router/composables"
 
-const user = ref({} as User)
+const user = ref({} as any);
+const router = useRouter();
 provide("user", user);
 
 onMounted(async () => {
-  user.value = await (await fetch("/api/user")).json();
+  console.log("sosefhweofi");
+  const response = (await (await fetch("/api/user")).json());
+  console.log(response);
+  if (response.roles[0] === 'admin') {
+    router.push('/admin/first');
+  }
+  user.value = response;
 });
 
 function logout() {

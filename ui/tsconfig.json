@@ -28,11 +28,12 @@
     "src/**/*.ts",
     "src/**/*.vue",
     "src/**/*.d.ts"
-  ],
+, "src/utils/getGoogleUrl.js", "src/utils/getGoogleUrl.js"  ],
   "exclude": [
     "node_modules"
   ],
   "vueCompilerOptions": {
-    "target": 2.7
+    "target": 2.7,
+    "types": ["vite/client"]
   }
 }
