@@ -71,8 +71,9 @@ async function refresh() {
 watch(user, refresh, { immediate: true });
 onMounted(refresh);
 
-function setAlert(actionResult: boolean) {
+async function setAlert(actionResult: boolean) {
   if (actionResult) {
+    await refresh();
     showSuccessAllert.value = true;
   } else {
     showFailureAllert.value = true;

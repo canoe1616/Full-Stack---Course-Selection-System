@@ -22,18 +22,9 @@ const router = new VueRouter({
       path: "/admin/addcourse",
       component: adminAddCourse,
     },
-    //   {
-    //     path: "/operator/:operatorId",
-    //     component: OperatorScreen,
-    //     props: ({ params: { operatorId }}) => ({ operatorId }),
-    //   },
-    //   {
-    //     path: "/",
-    //     component: StatusScreen,
-    //   }
     {
       path: "/admin/first",
-      component:helloAdminPage
+      component: helloAdminPage,
     },
     {
       path: "/view-all-courses",

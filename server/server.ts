@@ -1,21 +1,37 @@
-import express from "express";
+import { userInfo } from "os";
+import express, { NextFunction, Request, Response } from "express";
 import bodyParser from "body-parser";
 import pino from "pino";
 import expressPinoLogger from "express-pino-logger";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
-import testData from "./testData.json";
-import { Course, addCourseInfo, getAllCourse, deleteCourse, deleteCourseFromAllStudent } from "./data/course";
-import {getStudentCourses, deleteStudentCourse, coursesInStudentClassList } from "./data/student"
+import { Issuer, Strategy } from "openid-client";
+import passport from "passport";
+import { keycloak } from "./secrets";
+import {
+  Course,
+  addCourseInfo,
+  getAllCourse,
+  deleteCourse,
+  deleteCourseFromAllStudent,
+} from "./data/course";
+import {
+  getStudentCourses,
+  deleteStudentCourse,
+  coursesInStudentClassList,
+} from "./data/student";
 
 // set up Mongo
-const url = process.env.MONGO_URL || "mongodb://127.0.0.1:27017";
-const client = new MongoClient(url);
+const mongoUrl = "mongodb://127.0.0.1:27017";
+const client = new MongoClient(mongoUrl);
 
 export let db: Db;
 export let coursedb: Collection;
 export let maxCredit: Collection;
+export let adminDb: Collection;
+export let studentDb: Collection;
+
 const dbErrorMessage = { error: "db error" };
 
 // set up Express
@@ -24,12 +40,12 @@ const port = parseInt(process.env.PORT) || 8095;
 app.use(bodyParser.json());
 
 // set up Pino logging
-// const logger = pino({
-//   transport: {
-//     target: "pino-pretty",
-//   },
-// });
-// app.use(expressPinoLogger({ logger }));
+const logger = pino({
+  transport: {
+    target: "pino-pretty",
+  },
+});
+app.use(expressPinoLogger({ logger }));
 
 // set up session
 app.use(
@@ -43,22 +59,64 @@ app.use(
     // of course, will not persist across load balanced servers
     // or survive a restart of the server
     store: MongoStore.create({
-      mongoUrl: url,
+      mongoUrl: mongoUrl,
       ttl: 14 * 24 * 60 * 60, // 14 days
     }),
   })
 );
 
-declare module "express-session" {
-  export interface SessionData {
-    userId?: string;
+app.use(passport.initialize());
+app.use(passport.session());
+passport.serializeUser((user: any, done: any) => {
+  logger.info("serializeUser " + JSON.stringify(user));
+  done(null, user);
+});
+passport.deserializeUser((user: any, done: any) => {
+  logger.info("deserializeUser " + JSON.stringify(user));
+  done(null, user);
+});
+
+function checkAuthenticated(req: Request, res: Response, next: NextFunction) {
+  if (!req.isAuthenticated()) {
+    res.sendStatus(401);
+    return;
   }
+  next();
 }
 
-// TODO: Get rid of test data
-app.get("/api/user", (req, res) => {
-  // res.json(req.user || {});
-  res.json(testData.test_user);
+// api routes
+
+/**
+ * @param:
+ * @atomicity - atomic
+ */
+app.get("/api/user", async (req, res) => {
+  if (req.user) {
+    const userId = (req.user as any).preferred_username;
+    const admin = await adminDb.findOne({ userId: userId });
+    if (admin) {
+      res.json(req.user);
+    } else {
+      const entry = await studentDb.findOne({ studentId: userId });
+      res.json(entry);
+    }
+  } else {
+    res.json({});
+  }
+});
+
+/**
+ * @param: none
+ * @atomicity - atomic
+ * @description: log out of the current page for user
+ */
+app.post("/api/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
 });
 
 /**
@@ -66,7 +124,7 @@ app.get("/api/user", (req, res) => {
  * @atomicity - atomic
  * @description: add a course to the database
  */
-app.post("/api/admin/addCourse", async function (req, res) {
+app.post("/api/admin/addCourse", checkAuthenticated, async function (req, res) {
   const courseToAdd: Course = req.body;
 
   try {
@@ -81,60 +139,13 @@ app.post("/api/admin/addCourse", async function (req, res) {
   }
 });
 
-
-
 /**
  * @param: the maxcredit that either originally from the database which is 0 or editted by the admin
  * @atomicity - atomic
  * @description: get the updated/original maxCredit
  */
 
- app.get("/api/system_config", async function (req, res){
-  const maxCreditValue = await maxCredit.findOne({})
-  if (maxCreditValue === null) {
-    res.status(200).json({max_credits: 0})
-    return
-  }
-
-  res.status(200).json({max_credits: maxCreditValue.max_credits})
- })
-
-
-/**
- * @param: the maxcredit that editted by the admin from the frontend and need to be updated in the MongoDB database
- * @atomicity - atomic
- * @description: updated the new maxCredit in the MongoDB database
- */
-
-app.put('/api/system_config', async function(req, res){
-  const maxCreditValue = await maxCredit.findOne({})
-  console.log(maxCreditValue)
-  if (maxCreditValue === null) {
-    await maxCredit.insertOne(
-      {
-        max_credits: req.body.newMaxCredit
-      }
-    )
-    res.status(200).json({ status: "ok" })
-    return
-  }
-
-
-  await maxCredit.updateOne(
-    {"max_credits" : req.body.maxCredit},
-    {$set: { "max_credits" : req.body.newMaxCredit }}
-  )
-  res.status(200).json({ status: "ok" })
-})
-
-
-/**
- * @param: the maxcredit that either originally from the database which is 0 or editted by the admin
- * @atomicity - atomic
- * @description: get the updated/original maxCredit
- */
-
-app.get("/api/system_config", async function (req, res) {
+app.get("/api/system_config", checkAuthenticated, async function (req, res) {
   const maxCreditValue = await maxCredit.findOne({});
   if (maxCreditValue === null) {
     res.status(200).json({ max_credits: 0 });
@@ -150,9 +161,47 @@ app.get("/api/system_config", async function (req, res) {
  * @description: updated the new maxCredit in the MongoDB database
  */
 
-app.put("/api/system_config", async function (req, res) {
+app.put("/api/system_config", checkAuthenticated, async function (req, res) {
   const maxCreditValue = await maxCredit.findOne({});
-  console.log(maxCreditValue);
+  if (maxCreditValue === null) {
+    await maxCredit.insertOne({
+      max_credits: req.body.newMaxCredit,
+    });
+    res.status(200).json({ status: "ok" });
+    return;
+  }
+
+  await maxCredit.updateOne(
+    { max_credits: req.body.maxCredit },
+    { $set: { max_credits: req.body.newMaxCredit } }
+  );
+  res.status(200).json({ status: "ok" });
+});
+
+/**
+ * @param: the maxcredit that either originally from the database which is 0 or editted by the admin
+ * @atomicity - atomic
+ * @description: get the updated/original maxCredit
+ */
+
+app.get("/api/system_config", checkAuthenticated, async function (req, res) {
+  const maxCreditValue = await maxCredit.findOne({});
+  if (maxCreditValue === null) {
+    res.status(200).json({ max_credits: 0 });
+    return;
+  }
+
+  res.status(200).json({ max_credits: maxCreditValue.max_credits });
+});
+
+/**
+ * @param: the maxcredit that editted by the admin from the frontend and need to be updated in the MongoDB database
+ * @atomicity - atomic
+ * @description: updated the new maxCredit in the MongoDB database
+ */
+
+app.put("/api/system_config", checkAuthenticated, async function (req, res) {
+  const maxCreditValue = await maxCredit.findOne({});
   if (maxCreditValue === null) {
     await maxCredit.insertOne({
       max_credits: req.body.newMaxCredit,
@@ -173,7 +222,7 @@ app.put("/api/system_config", async function (req, res) {
  * @description: delete courses from admin, it also delete class from student's class list
  * @atomicity - atomic
  */
-app.delete("/api/admin/deleteCourses", async (req, res) => {
+app.delete("/api/admin/deleteCourses", checkAuthenticated, async (req, res) => {
   try {
     const toDeleteCourseList = req.body.coursesToDelete;
     deleteCourse(toDeleteCourseList);
@@ -184,7 +233,7 @@ app.delete("/api/admin/deleteCourses", async (req, res) => {
   }
 });
 
-app.get("/api/courses/:student_id", async (req, res) => {
+app.get("/api/courses/:student_id", checkAuthenticated, async (req, res) => {
   try {
     const studentId = req.params.student_id;
     const studentSelectedCourses = await getStudentCourses(studentId);
@@ -202,30 +251,32 @@ app.get("/api/courses/:student_id", async (req, res) => {
  * @error_behavior
  * - delete couese not exist in student courses list
  */
-app.delete("/api/student/deleteCourses/:student_id", async (req, res) => {
-  try {
-    const studentId = req.params.student_id;
-    const coursesToDelete = req.body.coursesToDelete;
-    const deletedCoursesLength = await deleteStudentCourse(
-      studentId,
-      coursesToDelete
-    );
-    if (deletedCoursesLength !== coursesToDelete.length) {
-      res
-        .status(404)
-        .json({
+app.delete(
+  "/api/student/deleteCourses/:student_id",
+  checkAuthenticated,
+  async (req, res) => {
+    try {
+      const studentId = req.params.student_id;
+      const coursesToDelete = req.body.courseId;
+      const deletedCoursesLength = await deleteStudentCourse(
+        studentId,
+        coursesToDelete
+      );
+      if (deletedCoursesLength !== coursesToDelete.length) {
+        res.status(404).json({
           error: `deleted courses not selected by student ${studentId}`,
         });
-      return;
+        return;
+      }
+
+      res.status(200).json({ result: `delete course ${coursesToDelete}` });
+    } catch (error) {
+      res.status(500).json(dbErrorMessage);
     }
-
-    res.status(200).json({ result: `delete course ${coursesToDelete}` });
-  } catch (error) {
-    res.status(500).json(dbErrorMessage);
   }
-});
+);
 
-app.get("/api/all_courses", async (req, res) => {
+app.get("/api/all_courses", checkAuthenticated, async (req, res) => {
   try {
     const allCourses = await getAllCourse();
     res.status(200).json(allCourses);
@@ -244,8 +295,7 @@ app.get("/api/all_courses", async (req, res) => {
  */
 app.post("/api/student/addCourses/:student_id", async (req, res) => {
   const studentId = req.params.student_id;
-  const newCoursesId = req.body.newCourses;
-
+  const newCoursesId = req.body.courseId;
   try {
     const coursesToAdd = await db
       .collection("course")
@@ -255,37 +305,110 @@ app.post("/api/student/addCourses/:student_id", async (req, res) => {
       res.status(404).json({ error: "non-exist course in selected course" });
       return;
     }
-
-    const duplicateCourseToAdd = await coursesInStudentClassList(studentId, newCoursesId)
+    const duplicateCourseToAdd = await coursesInStudentClassList(
+      studentId,
+      newCoursesId
+    );
     if (duplicateCourseToAdd !== null && duplicateCourseToAdd.length !== 0) {
-      res.status(404).json({'error': `courses ${duplicateCourseToAdd} already in student course list`})
-      return
+      res.status(404).json({
+        error: `courses ${duplicateCourseToAdd} already in student course list`,
+      });
+      return;
     }
 
-    const studentExist = await db.collection('student').findOne(
-      {
-        studentId: studentId
-      }
-    );
+    const studentExist = await db.collection("student").findOne({
+      studentId: studentId,
+    });
 
     if (studentExist === null) {
-      res.status(404).json({'error': `student ${studentId} not exist`})
-      return
+      res.status(404).json({ error: `student ${studentId} not exist` });
+      return;
     }
 
-    await db.collection('student').updateOne(
+    await db.collection("student").updateOne(
       {
         studentId: studentId,
       },
       {
         $push: { courses: { $each: coursesToAdd } },
       }
-    )
-    res.status(200).json({'result': `classes ${newCoursesId} added`})
-  } catch(error) {
-    console.log(error)
+    );
+    res.status(200).json({ result: `classes ${newCoursesId} added` });
+  } catch (error) {
+    console.log(error);
     res.status(500).json(dbErrorMessage);
   }
+});
+
+// connect to Mongo
+client.connect().then(() => {
+  console.log("Connected successfully to MongoDB");
+  db = client.db("course-registration");
+  maxCredit = db.collection("maxCredit");
+  coursedb = db.collection("course");
+  adminDb = db.collection("admin");
+  studentDb = db.collection("student");
+
+  Issuer.discover(
+    "http://127.0.0.1:8081/auth/realms/CourseRegistration/.well-known/openid-configuration"
+  ).then((issuer) => {
+    const client = new issuer.Client(keycloak);
+
+    passport.use(
+      "oidc",
+      new Strategy(
+        {
+          client,
+          params: {
+            // this forces a fresh login screen every time
+            prompt: "login",
+          },
+        },
+        async (tokenSet: any, userInfo: any, done: any) => {
+          logger.info("oidc " + JSON.stringify(userInfo));
+          const _id = userInfo.preferred_username;
+          const user = await adminDb.findOne({ userId: _id });
+          if (user != null) {
+            userInfo.roles = ["admin"];
+          } else {
+            await studentDb.updateOne(
+              { userId: _id },
+              {
+                $set: {
+                  studentId: userInfo.preferred_username,
+                  name: userInfo.name,
+                  department: "ECE",
+                  courses: [],
+                },
+              },
+              { upsert: true }
+            );
+            userInfo.roles = ["student"];
+          }
+          return done(null, userInfo);
+        }
+      )
+    );
+
+    app.get(
+      "/api/login",
+      passport.authenticate("oidc", { failureRedirect: "/api/login" }),
+      (req, res) => res.redirect("/")
+    );
+
+    app.get(
+      "/api/login-callback",
+      passport.authenticate("oidc", {
+        successRedirect: "/",
+        failureRedirect: "/api/login",
+      })
+    );
+
+    // start server
+    app.listen(port, () => {
+      logger.info(`Smoothie server listening on port ${port}`);
+    });
+  });
 });
 
 // TODO: what need to be done if a course in a student is deleted
@@ -293,17 +416,3 @@ app.post("/api/student/addCourses/:student_id", async (req, res) => {
 // TODO: coonect with auth mechanism
 // TODO: finish CI/CD
 // TODO: build front-end pages
-
-
-// connect to Mongo
-client.connect().then(() => {
-  console.log("Connected successfully to MongoDB");
-  db = client.db("course-registration");
-  maxCredit = db.collection('maxCredit')
-  coursedb = db.collection('course')
-
-  // start server
-  app.listen(port, () => {
-    console.log(`Course Registration server listening on port ${port}`);
-  });
-});

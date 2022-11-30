@@ -8,8 +8,6 @@ const maxCredit:SystemConfig = {
   max_credits : 0
 };
 
-
- 
 async function main() {
   await client.connect();
   console.log("Connected successfully to MongoDB");
@@ -18,6 +16,7 @@ async function main() {
   console.log("inserting maxCredit", await db.collection("maxCredit").insertOne( maxCredit as any))
   console.log(await db.collection('student').insertOne({studentId: "cl583", name: 'Ian Liu', department: 'ECE', courses: []}));
 
+  console.log(await db.collection('admin').insertOne({userId: "admin", name: 'admin'}));
   process.exit(0);
 }
 
