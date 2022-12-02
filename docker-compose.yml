@@ -90,7 +90,7 @@ services:
     image: e2e
     build:
       context: .
-      dockerfile: Dockerfile.e2e
+      dockerfile: Dockerfile
     depends_on:
       - server1
     networks:
