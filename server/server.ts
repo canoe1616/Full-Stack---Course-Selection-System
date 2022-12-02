@@ -30,6 +30,7 @@ if (process.env.PROXY_KEYCLOAK_TO_LOCALHOST) {
   // server's Docker container is just the container, not the laptop.
   // The following line creates a reverse proxy to the Keycloak Docker
   // container so that localhost:8081 can also be used to access Keycloak.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   require("http-proxy").createProxyServer({ target: "http://keycloak:8080" }).listen(8081)
 }
 
