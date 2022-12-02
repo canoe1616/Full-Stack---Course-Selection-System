@@ -5,8 +5,8 @@ networks:
     external: false
 
 volumes:
-  # keycloak:
-  #   driver: local
+  keycloak:
+    driver: local
   mongo:
     driver: local
 
@@ -16,6 +16,7 @@ services:
     build: ./server
     environment:
       - MONGO_URL=mongodb://mongo
+      - PROXY_KEYCLOAK_TO_LOCALHOST=true
     depends_on:
       - mongo
     networks:
@@ -27,6 +28,7 @@ services:
     build: ./server
     environment:
       - MONGO_URL=mongodb://mongo
+      - PROXY_KEYCLOAK_TO_LOCALHOST=true
     depends_on:
       - mongo
     networks:
@@ -67,6 +69,21 @@ services:
     depends_on:
       - ui1
       - ui2
-      - server1    
+      - server1
+  keycloak:
+    image: keycloak18
+    container_name: keycloak
+    environment:
+      - KEYCLOAK_USER=keycloak
+      # NOTE: this is only for demonstration purposes
+      # ordinarily, you should NOT embed passwords in files
+      - KEYCLOAK_PASSWORD=keycl0ak
+    restart: always
+    networks:
+      - lecture21
+    volumes:
+      - keycloak:/opt/jboss/keycloak/standalone/data
+    ports:
+      - "127.0.0.1:8081:8080"
 
 
