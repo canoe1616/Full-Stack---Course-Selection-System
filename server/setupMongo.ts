@@ -14,7 +14,6 @@ async function main() {
 
   const db = client.db("course-registration");
   console.log("inserting maxCredit", await db.collection("maxCredit").insertOne( maxCredit as any))
-  console.log(await db.collection('student').insertOne({studentId: "cl583", name: 'Ian Liu', department: 'ECE', courses: []}));
 
   console.log(await db.collection('admin').insertOne({userId: "admin", name: 'admin'}));
   process.exit(0);

@@ -12,12 +12,12 @@ export interface Course {
 export async function addCourseInfo(
   courseId: string,
   name: string,
-  instructor: string,
-  startTime: string,
-  endTime: string,
+  instructor_name: string,
+  start_time: string,
+  end_time: string,
   status: string,
-  weekdays: string,
-  capacity: number
+  day: string,
+  max_capacity: number
 ): Promise<void> {
   const response = await fetch("/api/admin/addCourse", {
     headers: {
@@ -26,12 +26,12 @@ export async function addCourseInfo(
     body: JSON.stringify({
       courseId,
       name,
-      instructor,
-      startTime,
-      endTime,
+      instructor_name,
+      start_time,
+      end_time,
       status,
-      weekdays,
-      capacity,
+      day,
+      max_capacity,
     }),
     method: "POST"
   });
