@@ -10,8 +10,10 @@
         <span v-else>Couse registration</span>
       </b-navbar-brand>
       <b-navbar-nav>
-        <b-nav-item href="/view-all-courses">View all courses</b-nav-item>
-        <b-nav-item href="/view-my-courses">My courses</b-nav-item>
+        <b-nav-item v-if="user?.role == 'student'" href="/view-all-courses">View all courses</b-nav-item>
+        <b-nav-item v-if="user?.role == 'student'" href="/view-my-courses">My courses</b-nav-item>
+        <b-nav-item v-if="user?.role == 'admin'" href="/admin/first">Edit crdit</b-nav-item>
+        <b-nav-item v-if="user?.role == 'admin'" href="/admin/addcourse">Edit courses</b-nav-item>
         <b-nav-item v-if="user?.name == null" href="/api/login"
           >Login</b-nav-item
         >
@@ -33,13 +35,10 @@ const router = useRouter();
 provide("user", user);
 
 onMounted(async () => {
-  console.log("sosefhweofi");
   const response = (await (await fetch("/api/user")).json());
-  console.log(response);
-  if (response.roles[0] === 'admin') {
-    router.push('/admin/first');
+  if (response.role) {
+    user.value = response;
   }
-  user.value = response;
 });
 
 function logout() {

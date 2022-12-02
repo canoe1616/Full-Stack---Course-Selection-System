@@ -1,5 +1,5 @@
 <template>
-  <b-card style="min-width: 89rem">
+  <b-card style="min-width: 89%">
     <b-card-header header-text-variant="white" header-bg-variant="dark">
       <h3>{{ course.name }}</h3>
       <div class="text-right">

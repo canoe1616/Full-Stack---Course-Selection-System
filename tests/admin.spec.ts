@@ -1,0 +1,36 @@
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('http://127.0.0.1:8096/');
+  await page.getByRole('link', { name: 'Login' }).click();
+  await page.getByLabel('Username or email').click();
+  await page.getByLabel('Username or email').fill('admin');
+  await page.getByLabel('Password').click();
+  await page.getByLabel('Password').fill('admin');
+  await page.getByRole('button', { name: 'Sign In' }).click();
+  await page.getByRole('link', { name: 'Edit crdit' }).click();
+  await page.locator('#numberOfMaxCredit-input').click();
+  await page.locator('#numberOfMaxCredit-input').fill('20');
+  await page.getByRole('button', { name: 'edit maxCredit' }).click();
+  await page.getByRole('link', { name: 'Edit courses' }).click();
+  await page.locator('#ourseId-input').click();
+  await page.locator('#ourseId-input').fill('Advanced Algorithm');
+  await page.locator('#ourseId-input').press('Meta+a');
+  await page.locator('#ourseId-input').press('Meta+c');
+  await page.getByLabel('name:').click();
+  await page.getByLabel('name:').fill('Advanced Algorithm');
+  await page.locator('#ourseId-input').click();
+  await page.locator('#ourseId-input').fill('ECE 558');
+  await page.getByLabel('instructor:').click();
+  await page.getByLabel('instructor:').fill('Drew Hilton');
+  await page.getByLabel('startTime:').click();
+  await page.getByLabel('startTime:').fill('10:00');
+  await page.getByLabel('endTime:').click();
+  await page.getByLabel('endTime:').fill('12:00');
+  await page.getByLabel('status:').click();
+  await page.getByLabel('status:').fill('open');
+  await page.getByLabel('weekdays:').click();
+  await page.getByLabel('weekdays:').fill('Wed');
+  await page.getByRole('button', { name: 'plus circle' }).click();
+  await page.getByRole('link', { name: 'Logout' }).click();
+});
