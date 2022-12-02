@@ -22,8 +22,19 @@ import {
   coursesInStudentClassList,
 } from "./data/student";
 
+if (process.env.PROXY_KEYCLOAK_TO_LOCALHOST) {
+  // NOTE: this is a hack to allow Keycloak to run from the 
+  // same development machine as the rest of the app. We have exposed
+  // Keycloak to run off port 8081 of localhost, where localhost is the
+  // localhost of the underlying laptop, but localhost inside of the
+  // server's Docker container is just the container, not the laptop.
+  // The following line creates a reverse proxy to the Keycloak Docker
+  // container so that localhost:8081 can also be used to access Keycloak.
+  require("http-proxy").createProxyServer({ target: "http://keycloak:8080" }).listen(8081)
+}
+
 // set up Mongo
-const mongoUrl = "mongodb://127.0.0.1:27017";
+const mongoUrl = process.env.MONGO_URL || "mongodb://127.0.0.1:27017"
 const client = new MongoClient(mongoUrl);
 
 export let db: Db;
