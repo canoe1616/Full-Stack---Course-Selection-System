@@ -43,6 +43,7 @@ build-job:       # This job runs in the build stage, which runs first.
     - docker build -t nginx_load_balancer .
     - cd ..
     # /Users/yezhouchen/cs590-final-courseregistration/keycloak-containers/server/Dockerfile
+    - npm i
     - cd keycloak-containers
     - cd server
     - docker build -t keycloak-containers .
