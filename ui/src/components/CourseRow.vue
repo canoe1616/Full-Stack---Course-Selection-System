@@ -38,7 +38,7 @@
           >End time: {{ course.end_time }}</b-card
         >
         <b-card bg-variant="primary" text-variant="white" border-variant="dark"
-          >Capacity: {{ course.curr_capacity }}/{{
+          >Capacity: {{ course.curr_capacity ? course.curr_capacity : 0 }}/{{
             course.max_capacity
           }}</b-card
         >
