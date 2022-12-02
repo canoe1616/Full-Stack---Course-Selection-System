@@ -86,5 +86,14 @@ services:
       - keycloak:/opt/jboss/keycloak/standalone/data
     ports:
       - "127.0.0.1:8081:8080"
+  e2e:
+    image: e2e
+    build: ./tests
+      # context: ./tests
+      # dockerfile: Dockerfile.e2e
+    depends_on:
+      - server1
+    networks:
+      - lecture21 
 
 

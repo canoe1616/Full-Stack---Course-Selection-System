@@ -46,6 +46,9 @@ build-job:       # This job runs in the build stage, which runs first.
     - cd keycloak-containers
     - cd server
     - docker build -t keycloak-containers .
+    - cd ..
+    - cd tests
+    - docker build -t e2e .
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy
