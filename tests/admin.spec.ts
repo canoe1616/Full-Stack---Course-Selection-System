@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('test', async ({ page }) => {
-  await page.goto('http://127.0.0.1:8096/');
+  await page.goto('http://127.0.0.1:8080/');
   await page.getByRole('link', { name: 'Login' }).click();
   await page.getByLabel('Username or email').click();
   await page.getByLabel('Username or email').fill('admin');
