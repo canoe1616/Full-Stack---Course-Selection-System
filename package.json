@@ -18,6 +18,6 @@
   },
   "dependencies": {
     "@coreui/coreui": "^4.2.2",
-    "playwright": "^1.28.1"
+    "playwright": "1.28.1"
   }
 }
