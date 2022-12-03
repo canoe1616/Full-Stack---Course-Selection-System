@@ -17,6 +17,7 @@
     "eslint": "^8.26.0"
   },
   "dependencies": {
-    "@coreui/coreui": "^4.2.2"
+    "@coreui/coreui": "^4.2.2",
+    "playwright": "^1.28.1"
   }
 }
