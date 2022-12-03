@@ -1,7 +1,7 @@
 <template>
   <!-- <router-view /> -->
   <div class="mx-3 my-3">
-    <h2>Hello, Admin</h2>
+    <h2>Hello, Admin{{user.name}}</h2>
     <span>Current Max Credit {{ maxCredit }}</span>
     <b-form-input
       id="numberOfMaxCredit-input"
