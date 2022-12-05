@@ -32,3 +32,9 @@ Mangage Course Page
 POST /api/admin/addCourse req.body: Course[]
 PUT /api/admin/edit body: {courseId, name, instructor, startTime, endTIme, status, weekdays, capacity} (with some field to be optional)
 DELETE /api/admin/deleteCourses req.body.coursesToDelete: string[] (i.e. list of courseId to delete)
+
+#Mongo DB Collection
+course
+student
+user
+systemConfig
